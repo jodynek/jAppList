@@ -10,6 +10,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,8 +50,9 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         if (id == R.id.action_refresh) {
-            AppsListFragment appsListFragment = (AppsListFragment)
-                getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+            AppsListFragment appsListFragment =
+                (AppsListFragment) fragment.getChildFragmentManager().getPrimaryNavigationFragment();
             if (appsListFragment != null) {
                 //appsListFragment.Refresh();
             }
