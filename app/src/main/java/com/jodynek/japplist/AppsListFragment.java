@@ -92,9 +92,7 @@ public class AppsListFragment extends Fragment {
 
       @Override
       public void onRefresh() {
-        pullToRefresh.setRefreshing(true);
-        installedAppAdapter.notifyDataSetChanged();
-        pullToRefresh.setRefreshing(false);
+        Refresh();
       }
     });
     userInstalledApps = getView().findViewById(R.id.installed_app_list);
