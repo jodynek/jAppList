@@ -2,4 +2,6 @@
     <string name="app_name">Installed Applications</string>
     <string name="search">Search</string>
     <string name="refresh">Refresh</string>
+    <string name="total_installed_apps">"Total Installed Apps: %1$s"</string>
+    <string name="apps">" Apps"</string>
 </resources>

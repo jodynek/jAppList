@@ -45,9 +45,9 @@ public class AppsListFragment extends Fragment {
   }
 
   private List<AppList> getInstalledApps() {
-    PackageManager pm = getContext().getPackageManager();
-    if (pm == null)
+    if (getContext() == null)
       return null;
+    PackageManager pm = getContext().getPackageManager();
     List<AppList> apps = new ArrayList<>();
     List<PackageInfo> packs = getContext().getPackageManager().getInstalledPackages(0);
 
@@ -83,9 +83,9 @@ public class AppsListFragment extends Fragment {
   }
 
   public void Refresh() {
-    pullToRefresh = getView().findViewById(R.id.pullToRefresh);
-    if (pullToRefresh == null)
+    if (getView() == null)
       return;
+    pullToRefresh = getView().findViewById(R.id.pullToRefresh);
     pullToRefresh.setRefreshing(true);
     //setting an setOnRefreshListener on the SwipeDownLayout
     pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -114,7 +114,7 @@ public class AppsListFragment extends Fragment {
               public void onClick(DialogInterface dialog, int which) {
                 // The 'which' argument contains the index position of the selected item
                 if (which == 0) {
-                  if (getContext().getPackageManager() == null)
+                  if (getContext() == null)
                     return;
                   Intent intent = getContext().getPackageManager().
                       getLaunchIntentForPackage(installedApps.get(i).packages);
@@ -141,9 +141,10 @@ public class AppsListFragment extends Fragment {
     //Total Number of Installed-Apps(i.e. List Size)
     String abc = userInstalledApps.getCount() + "";
     TextView countApps = getView().findViewById(R.id.countApps);
-    countApps.setText("Total Installed Apps: " + abc);
+    countApps.setText(getResources().getString(R.string.total_installed_apps, abc));
     pullToRefresh.setRefreshing(false);
-    Toast.makeText(getContext(), abc + " Apps", Toast.LENGTH_SHORT).show();
+    Toast.makeText(getContext(), abc + getResources().getString(R.string.apps),
+        Toast.LENGTH_SHORT).show();
   }
 
   public class AppAdapter extends BaseAdapter {
