@@ -1,5 +1,7 @@
 package com.jodynek.japplist;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -9,10 +11,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
+    private SearchView searchView;
+    private MenuItem searchMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +40,17 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        SearchManager searchManager = (SearchManager)
+            getSystemService(Context.SEARCH_SERVICE);
+        searchMenuItem = menu.findItem(R.id.search);
+        searchView = (SearchView) searchMenuItem.getActionView();
+
+        searchView.setSearchableInfo(searchManager.
+            getSearchableInfo(getComponentName()));
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(this);
+
         return true;
     }
 
@@ -55,5 +71,28 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        //friendListAdapter.getFilter().filter(newText);
+
+        // use to enable search view popup text
+//        if (TextUtils.isEmpty(newText)) {
+//            friendListView.clearTextFilter();
+//        }
+//        else {
+//            friendListView.setFilterText(newText.toString());
+//        }
+
+        return true;
     }
 }

@@ -3,15 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.jodynek.japplist.MainActivity">
     <item
-        android:id="@+id/action_search"
+        android:id="@+id/search"
+        android:title="Search"
         android:icon="@android:drawable/ic_menu_search"
         android:orderInCategory="100"
-        android:title="@string/search"
-        app:showAsAction="ifRoom" />
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="collapseActionView|ifRoom" />
     <item
         android:id="@+id/action_refresh"
         android:icon="@android:drawable/ic_menu_rotate"
         android:orderInCategory="200"
         android:title="@string/refresh"
         app:showAsAction="ifRoom" />
+
 </menu>
