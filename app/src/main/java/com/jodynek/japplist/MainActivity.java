@@ -48,7 +48,14 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-
+        if (id == R.id.action_refresh) {
+            AppsListFragment appsListFragment = (AppsListFragment)
+                getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+            if (appsListFragment != null) {
+                //appsListFragment.Refresh();
+            }
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 }
