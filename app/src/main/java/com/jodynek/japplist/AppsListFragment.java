@@ -19,12 +19,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class AppsListFragment extends Fragment {
   ListView userInstalledApps;
@@ -54,6 +56,15 @@ public class AppsListFragment extends Fragment {
         apps.add(new AppList(appName, icon, packages));
       }
     }
+
+    // sorting collection...
+    Collections.sort(apps, new Comparator<AppList>() {
+      @Override
+      public int compare(AppList o1, AppList o2) {
+        return o1.name.compareTo(o2.name);
+      }
+    });
+
     return apps;
   }
 
