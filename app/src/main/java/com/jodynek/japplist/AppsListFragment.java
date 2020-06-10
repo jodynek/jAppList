@@ -22,6 +22,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class AppsListFragment extends Fragment {
+  SwipeRefreshLayout pullToRefresh;
   ListView userInstalledApps;
   private List<AppList> installedApps;
   private AppAdapter installedAppAdapter;
@@ -73,8 +75,19 @@ public class AppsListFragment extends Fragment {
   }
 
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-    userInstalledApps = (ListView) getView().findViewById(R.id.installed_app_list);
+    pullToRefresh = (SwipeRefreshLayout) getView().findViewById(R.id.pullToRefresh);
+    pullToRefresh.setRefreshing(true);
+    //setting an setOnRefreshListener on the SwipeDownLayout
+    pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 
+      @Override
+      public void onRefresh() {
+        pullToRefresh.setRefreshing(true);
+        installedAppAdapter.notifyDataSetChanged();
+        pullToRefresh.setRefreshing(false);
+      }
+    });
+    userInstalledApps = (ListView) getView().findViewById(R.id.installed_app_list);
     installedApps = getInstalledApps();
     installedAppAdapter = new AppAdapter(this.getContext(), installedApps);
     userInstalledApps.setAdapter(installedAppAdapter);
@@ -115,6 +128,7 @@ public class AppsListFragment extends Fragment {
     String abc = userInstalledApps.getCount() + "";
     TextView countApps = (TextView) getView().findViewById(R.id.countApps);
     countApps.setText("Total Installed Apps: " + abc);
+    pullToRefresh.setRefreshing(false);
     Toast.makeText(getContext(), abc + " Apps", Toast.LENGTH_SHORT).show();
 
     super.onViewCreated(view, savedInstanceState);

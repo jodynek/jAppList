@@ -8,6 +8,5 @@
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.jodynek.japplist.AppsListFragment"
-        android:label="@string/first_fragment_label"
         tools:layout="@layout/fragment_apps_list"></fragment>
 </navigation>

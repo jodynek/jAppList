@@ -13,9 +13,14 @@
         android:padding="5dp"
         android:text="Count: " />
 
-    <ListView
-        android:id="@+id/installed_app_list"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/pullToRefresh"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
 
+        <ListView
+            android:id="@+id/installed_app_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>
