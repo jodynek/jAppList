@@ -19,15 +19,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class AppsListFragment extends Fragment {
   SwipeRefreshLayout pullToRefresh;
@@ -46,7 +46,9 @@ public class AppsListFragment extends Fragment {
 
   private List<AppList> getInstalledApps() {
     PackageManager pm = getContext().getPackageManager();
-    List<AppList> apps = new ArrayList<AppList>();
+    if (pm == null)
+      return null;
+    List<AppList> apps = new ArrayList<>();
     List<PackageInfo> packs = getContext().getPackageManager().getInstalledPackages(0);
 
     for (int i = 0; i < packs.size(); i++) {
@@ -75,7 +77,15 @@ public class AppsListFragment extends Fragment {
   }
 
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-    pullToRefresh = (SwipeRefreshLayout) getView().findViewById(R.id.pullToRefresh);
+    Refresh();
+
+    super.onViewCreated(view, savedInstanceState);
+  }
+
+  public void Refresh() {
+    pullToRefresh = getView().findViewById(R.id.pullToRefresh);
+    if (pullToRefresh == null)
+      return;
     pullToRefresh.setRefreshing(true);
     //setting an setOnRefreshListener on the SwipeDownLayout
     pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -87,8 +97,10 @@ public class AppsListFragment extends Fragment {
         pullToRefresh.setRefreshing(false);
       }
     });
-    userInstalledApps = (ListView) getView().findViewById(R.id.installed_app_list);
+    userInstalledApps = getView().findViewById(R.id.installed_app_list);
     installedApps = getInstalledApps();
+    if (this.getContext() == null)
+      return;
     installedAppAdapter = new AppAdapter(this.getContext(), installedApps);
     userInstalledApps.setAdapter(installedAppAdapter);
     userInstalledApps.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -102,6 +114,8 @@ public class AppsListFragment extends Fragment {
               public void onClick(DialogInterface dialog, int which) {
                 // The 'which' argument contains the index position of the selected item
                 if (which == 0) {
+                  if (getContext().getPackageManager() == null)
+                    return;
                   Intent intent = getContext().getPackageManager().
                       getLaunchIntentForPackage(installedApps.get(i).packages);
                   if (intent != null) {
@@ -126,12 +140,10 @@ public class AppsListFragment extends Fragment {
 
     //Total Number of Installed-Apps(i.e. List Size)
     String abc = userInstalledApps.getCount() + "";
-    TextView countApps = (TextView) getView().findViewById(R.id.countApps);
+    TextView countApps = getView().findViewById(R.id.countApps);
     countApps.setText("Total Installed Apps: " + abc);
     pullToRefresh.setRefreshing(false);
     Toast.makeText(getContext(), abc + " Apps", Toast.LENGTH_SHORT).show();
-
-    super.onViewCreated(view, savedInstanceState);
   }
 
   public class AppAdapter extends BaseAdapter {
@@ -165,9 +177,9 @@ public class AppsListFragment extends Fragment {
       if (convertView == null) {
         listViewHolder = new ViewHolder();
         convertView = layoutInflater.inflate(R.layout.installed_app_list, parent, false);
-        listViewHolder.textInListView = (TextView) convertView.findViewById(R.id.list_app_name);
-        listViewHolder.imageInListView = (ImageView) convertView.findViewById(R.id.app_icon);
-        listViewHolder.packageInListView = (TextView) convertView.findViewById(R.id.app_package);
+        listViewHolder.textInListView = convertView.findViewById(R.id.list_app_name);
+        listViewHolder.imageInListView = convertView.findViewById(R.id.app_icon);
+        listViewHolder.packageInListView = convertView.findViewById(R.id.app_package);
         convertView.setTag(listViewHolder);
       } else {
         listViewHolder = (ViewHolder) convertView.getTag();

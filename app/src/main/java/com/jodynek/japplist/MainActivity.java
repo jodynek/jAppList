@@ -45,16 +45,12 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
         if (id == R.id.action_refresh) {
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
             AppsListFragment appsListFragment =
                 (AppsListFragment) fragment.getChildFragmentManager().getPrimaryNavigationFragment();
             if (appsListFragment != null) {
-                //appsListFragment.Refresh();
+                appsListFragment.Refresh();
             }
             return true;
         }
