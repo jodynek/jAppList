@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,6 +38,7 @@ public class AppsListFragment extends Fragment {
   SwipeRefreshLayout pullToRefresh;
   ListView userInstalledApps;
   private List<AppList> installedApps;
+  private List<AppList> filteredInstalledApps;
   private AppAdapter installedAppAdapter;
 
   @Override
@@ -72,7 +75,6 @@ public class AppsListFragment extends Fragment {
         return o1.name.compareTo(o2.name);
       }
     });
-
     return apps;
   }
 
@@ -97,8 +99,6 @@ public class AppsListFragment extends Fragment {
       long apkSize = storageStats.getAppBytes();
 
       return dataSize + cacheSize + apkSize;
-      //Toast.makeText(context, cacheSize + ",," + dataSize + ",," + apkSize, Toast.LENGTH_LONG).show();
-      //long size += info.cacheSize;
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -188,14 +188,27 @@ public class AppsListFragment extends Fragment {
         Toast.LENGTH_SHORT).show();
   }
 
-  public class AppAdapter extends BaseAdapter {
+  public void SetFilter(String filter) {
+    installedAppAdapter.getFilter().filter(filter);
+  }
 
+  public class AppAdapter extends BaseAdapter implements Filterable {
     public LayoutInflater layoutInflater;
     public List<AppList> listStorage;
+    private AppFilter appFilter;
 
     public AppAdapter(Context context, List<AppList> customizedListView) {
       layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       listStorage = customizedListView;
+    }
+
+    @Override
+    public Filter getFilter() {
+      if (appFilter == null) {
+        appFilter = new AppFilter();
+      }
+
+      return appFilter;
     }
 
     @Override
@@ -272,6 +285,53 @@ public class AppsListFragment extends Fragment {
 
     public long getSize() {
       return size;
+    }
+  }
+
+  private class AppFilter extends Filter {
+    @Override
+    protected FilterResults performFiltering(CharSequence constraint) {
+      FilterResults filterResults = new FilterResults();
+      if (constraint != null && constraint.length() > 0) {
+        ArrayList<AppList> tempList = new ArrayList<>();
+
+        // search content in apps list
+        for (AppList appList : installedApps) {
+          if (appList.getName().toLowerCase().contains(constraint.toString().toLowerCase())) {
+            tempList.add(appList);
+          }
+        }
+
+        filterResults.count = tempList.size();
+        filterResults.values = tempList;
+      } else {
+        filterResults.count = installedApps.size();
+        filterResults.values = installedApps;
+      }
+
+      return filterResults;
+    }
+
+    /**
+     * Notify about filtered list to ui
+     *
+     * @param constraint text
+     * @param results    filtered result
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void publishResults(CharSequence constraint, FilterResults results) {
+      if (installedApps == null) {
+        List<AppList> installedApps = new ArrayList<>();
+      }
+      filteredInstalledApps = (ArrayList<AppList>) results.values;
+      installedAppAdapter.listStorage = filteredInstalledApps;
+      if (getView() == null)
+        return;
+      TextView countApps = getView().findViewById(R.id.countApps);
+      countApps.setText(getResources().getString(R.string.total_installed_apps,
+          String.valueOf(filteredInstalledApps.size())));
+      installedAppAdapter.notifyDataSetChanged();
     }
   }
 

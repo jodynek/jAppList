@@ -10,61 +10,66 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
-    private SearchView searchView;
-    private MenuItem searchMenuItem;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.SearchView.OnQueryTextListener;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+public class MainActivity extends AppCompatActivity implements OnQueryTextListener {
+  private SearchView searchView;
+  private MenuItem searchMenuItem;
 
-        // permission for stats
-        AppOpsManager appOps = (AppOpsManager)
-            getSystemService(Context.APP_OPS_SERVICE);
-        int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
-            android.os.Process.myUid(), getPackageName());
-        if (mode != AppOpsManager.MODE_ALLOWED) {
-            startActivityForResult(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS), 0);
-        }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+    // permission for stats
+    AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+    if (appOps == null)
+      return;
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
-            }
-        });
+    int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+        android.os.Process.myUid(), getPackageName());
+    if (mode != AppOpsManager.MODE_ALLOWED) {
+      startActivityForResult(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS), 0);
     }
+
+    setContentView(R.layout.activity_main);
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+
+    FloatingActionButton fab = findViewById(R.id.fab);
+    fab.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            .setAction("Action", null).show();
+      }
+    });
+  }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+      // Inflate the menu; this adds items to the action bar if it is present.
+      getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        SearchManager searchManager = (SearchManager)
-            getSystemService(Context.SEARCH_SERVICE);
-        searchMenuItem = menu.findItem(R.id.search);
-        searchView = (SearchView) searchMenuItem.getActionView();
+      SearchManager searchManager = (SearchManager)
+          getSystemService(Context.SEARCH_SERVICE);
+      searchMenuItem = menu.findItem(R.id.search);
+      searchView = (SearchView) searchMenuItem.getActionView();
 
-        searchView.setSearchableInfo(searchManager.
-            getSearchableInfo(getComponentName()));
-        searchView.setSubmitButtonEnabled(true);
-        searchView.setOnQueryTextListener(this);
+      if (searchManager == null)
+        return false;
+      searchView.setSearchableInfo(searchManager.
+          getSearchableInfo(getComponentName()));
+      searchView.setSubmitButtonEnabled(true);
+      searchView.setOnQueryTextListener(this);
 
-        return true;
+      return true;
     }
 
     @Override
@@ -75,13 +80,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
-            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-            AppsListFragment appsListFragment =
-                (AppsListFragment) fragment.getChildFragmentManager().getPrimaryNavigationFragment();
-            if (appsListFragment != null) {
-                appsListFragment.Refresh();
-            }
-            return true;
+          Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+          if (fragment == null)
+            return false;
+          AppsListFragment appsListFragment =
+              (AppsListFragment) fragment.getChildFragmentManager().getPrimaryNavigationFragment();
+          if (appsListFragment != null) {
+            appsListFragment.Refresh();
+          }
+          return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -91,21 +98,17 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean onQueryTextChange(String newText) {
-        //friendListAdapter.getFilter().filter(newText);
+      Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+      if (fragment == null)
+        return false;
+      AppsListFragment appsListFragment =
+          (AppsListFragment) fragment.getChildFragmentManager().getPrimaryNavigationFragment();
+      if (appsListFragment != null) {
+        appsListFragment.SetFilter(newText);
+      }
 
-        // use to enable search view popup text
-//        if (TextUtils.isEmpty(newText)) {
-//            friendListView.clearTextFilter();
-//        }
-//        else {
-//            friendListView.setFilterText(newText.toString());
-//        }
-
-        return true;
+      return true;
     }
 }
