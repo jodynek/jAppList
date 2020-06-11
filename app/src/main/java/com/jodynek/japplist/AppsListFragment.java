@@ -22,15 +22,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class AppsListFragment extends Fragment {
   SwipeRefreshLayout pullToRefresh;
@@ -81,23 +81,42 @@ public class AppsListFragment extends Fragment {
   }
 
   private long getPackageSizeInfo(String packageName) {
-    final StorageStatsManager storageStatsManager = (StorageStatsManager) getContext().getSystemService(Context.STORAGE_STATS_SERVICE);
+    if (getContext() == null)
+      return 0;
+    final StorageStatsManager storageStatsManager = (StorageStatsManager) getContext().
+        getSystemService(Context.STORAGE_STATS_SERVICE);
     final StorageManager storageManager = (StorageManager) getContext().getSystemService(Context.STORAGE_SERVICE);
     try {
 
       ApplicationInfo ai = getContext().getPackageManager().getApplicationInfo(packageName, 0);
+      if (storageStatsManager == null)
+        return 0;
       StorageStats storageStats = storageStatsManager.queryStatsForUid(ai.storageUuid, ai.uid);
       long cacheSize = storageStats.getCacheBytes();
       long dataSize = storageStats.getDataBytes();
       long apkSize = storageStats.getAppBytes();
 
-      return dataSize;
+      return dataSize + cacheSize + apkSize;
       //Toast.makeText(context, cacheSize + ",," + dataSize + ",," + apkSize, Toast.LENGTH_LONG).show();
       //long size += info.cacheSize;
     } catch (Exception e) {
       e.printStackTrace();
     }
     return 0;
+  }
+
+  private String FormatSize(long size) {
+    String sizeString;
+    if (size < 1000)
+      sizeString = String.valueOf(size);
+    else if (size < 1000000)
+      sizeString = size / 1024 + "kB";
+    else if (size < 1000000000L) {
+      sizeString = size / 1024 / 1024 + "MB";
+    } else
+      sizeString = size / 1024 / 1024 / 1024 + "GB";
+
+    return sizeString;
   }
 
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -212,7 +231,7 @@ public class AppsListFragment extends Fragment {
       listViewHolder.imageInListView.setImageDrawable(listStorage.get(position).getIcon());
       listViewHolder.packageInListView.setText(listStorage.get(position).getPackages());
       long size = listStorage.get(position).getSize();
-      String sizeMB = String.valueOf(size);
+      String sizeMB = FormatSize(size);
       listViewHolder.sizeInListView.setText(sizeMB);
 
       return convertView;
