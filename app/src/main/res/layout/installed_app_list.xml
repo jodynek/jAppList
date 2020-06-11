@@ -36,6 +36,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="App Package Name" />
+
+            <TextView
+                android:id="@+id/app_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="App Size" />
         </LinearLayout>
     </LinearLayout>
 

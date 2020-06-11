@@ -1,5 +1,7 @@
 package com.jodynek.japplist;
 
+import android.app.usage.StorageStats;
+import android.app.usage.StorageStatsManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.storage.StorageManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,15 +22,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class AppsListFragment extends Fragment {
   SwipeRefreshLayout pullToRefresh;
@@ -57,7 +60,8 @@ public class AppsListFragment extends Fragment {
         String appName = p.applicationInfo.loadLabel(getContext().getPackageManager()).toString();
         Drawable icon = p.applicationInfo.loadIcon(getContext().getPackageManager());
         String packages = p.applicationInfo.packageName;
-        apps.add(new AppList(appName, icon, packages));
+        long size = getPackageSizeInfo(packages);
+        apps.add(new AppList(appName, icon, packages, size));
       }
     }
 
@@ -74,6 +78,26 @@ public class AppsListFragment extends Fragment {
 
   private boolean isSystemPackage(PackageInfo pkgInfo) {
     return (pkgInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+  }
+
+  private long getPackageSizeInfo(String packageName) {
+    final StorageStatsManager storageStatsManager = (StorageStatsManager) getContext().getSystemService(Context.STORAGE_STATS_SERVICE);
+    final StorageManager storageManager = (StorageManager) getContext().getSystemService(Context.STORAGE_SERVICE);
+    try {
+
+      ApplicationInfo ai = getContext().getPackageManager().getApplicationInfo(packageName, 0);
+      StorageStats storageStats = storageStatsManager.queryStatsForUid(ai.storageUuid, ai.uid);
+      long cacheSize = storageStats.getCacheBytes();
+      long dataSize = storageStats.getDataBytes();
+      long apkSize = storageStats.getAppBytes();
+
+      return dataSize;
+      //Toast.makeText(context, cacheSize + ",," + dataSize + ",," + apkSize, Toast.LENGTH_LONG).show();
+      //long size += info.cacheSize;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return 0;
   }
 
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -179,6 +203,7 @@ public class AppsListFragment extends Fragment {
         listViewHolder.textInListView = convertView.findViewById(R.id.list_app_name);
         listViewHolder.imageInListView = convertView.findViewById(R.id.app_icon);
         listViewHolder.packageInListView = convertView.findViewById(R.id.app_package);
+        listViewHolder.sizeInListView = convertView.findViewById(R.id.app_size);
         convertView.setTag(listViewHolder);
       } else {
         listViewHolder = (ViewHolder) convertView.getTag();
@@ -186,6 +211,9 @@ public class AppsListFragment extends Fragment {
       listViewHolder.textInListView.setText(listStorage.get(position).getName());
       listViewHolder.imageInListView.setImageDrawable(listStorage.get(position).getIcon());
       listViewHolder.packageInListView.setText(listStorage.get(position).getPackages());
+      long size = listStorage.get(position).getSize();
+      String sizeMB = String.valueOf(size);
+      listViewHolder.sizeInListView.setText(sizeMB);
 
       return convertView;
     }
@@ -194,6 +222,7 @@ public class AppsListFragment extends Fragment {
       TextView textInListView;
       ImageView imageInListView;
       TextView packageInListView;
+      TextView sizeInListView;
     }
   }
 
@@ -201,11 +230,13 @@ public class AppsListFragment extends Fragment {
     Drawable icon;
     private String name;
     private String packages;
+    private long size;
 
-    public AppList(String name, Drawable icon, String packages) {
+    public AppList(String name, Drawable icon, String packages, long size) {
       this.name = name;
       this.icon = icon;
       this.packages = packages;
+      this.size = size;
     }
 
     public String getName() {
@@ -218,6 +249,10 @@ public class AppsListFragment extends Fragment {
 
     public String getPackages() {
       return packages;
+    }
+
+    public long getSize() {
+      return size;
     }
   }
 
