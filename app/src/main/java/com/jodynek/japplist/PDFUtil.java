@@ -1,20 +1,16 @@
 package com.jodynek.japplist;
 
 import android.annotation.TargetApi;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
-import android.graphics.pdf.PdfRenderer;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,6 +20,12 @@ import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 public class PDFUtil {
+
+
+  /**
+   * TAG.
+   */
+  private static final String TAG = PDFUtil.class.getName();
   /**
    * Page width for our PDF.
    */
@@ -32,10 +34,6 @@ public class PDFUtil {
    * Page height for our PDF.
    */
   public static final double PDF_PAGE_HEIGHT = 11.7 * 72;
-  /**
-   * TAG.
-   */
-  private static final String TAG = PDFUtil.class.getName();
   /**
    * Page width for our PDF in inch.
    */
@@ -69,58 +67,6 @@ public class PDFUtil {
   }
 
   /**
-   * Convert PDF to bitmap, only works on devices above LOLLIPOP
-   *
-   * @param pdfFile pdf file
-   * @return list of bitmap of every page
-   */
-  public static ArrayList<Bitmap> pdfToBitmap(File pdfFile) throws IllegalStateException {
-    if (pdfFile == null || pdfFile.exists() == false) {
-      throw new IllegalStateException("");
-    }
-    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP) {
-      return null;
-    }
-
-    ArrayList<Bitmap> bitmaps = new ArrayList<>();
-
-    try {
-      PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY));
-
-      Bitmap bitmap;
-      final int pageCount = renderer.getPageCount();
-      for (int i = 0; i < pageCount; i++) {
-        PdfRenderer.Page page = renderer.openPage(i);
-
-
-        int width = page.getWidth();
-        int height = page.getHeight();
-
-                /* FOR HIGHER QUALITY IMAGES, USE:
-                int width = context.getResources().getDisplayMetrics().densityDpi / 72 * page.getWidth();
-                int height = context.getResources().getDisplayMetrics().densityDpi / 72 * page.getHeight();
-                */
-
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-
-        bitmaps.add(bitmap);
-
-        // close the page
-        page.close();
-
-      }
-
-      // close the renderer
-      renderer.close();
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-
-    return bitmaps;
-  }
-
-  /**
    * Generates PDF for the given content views to the file path specified.
    * <p/>
    * Method gets List of views as the input and each view will be written to the single page in
@@ -149,6 +95,7 @@ public class PDFUtil {
 
   }
 
+
   /**
    * Listener used to send PDF Generation callback.
    */
@@ -164,35 +111,6 @@ public class PDFUtil {
      * @param exception Exception occurred during PDFGeneration.
      */
     void pdfGenerationFailure(final Exception exception);
-  }
-
-  /**
-   * APINotSupportedException will be thrown If the device doesn't support PDF methods.
-   */
-  private static class APINotSupportedException extends Exception {
-    // mErrorMessage.
-    private String mErrorMessage;
-
-    /**
-     * Constructor.
-     *
-     * @param errorMessage Error Message.
-     */
-    public APINotSupportedException(final String errorMessage) {
-      this.mErrorMessage = errorMessage;
-    }
-
-    /**
-     * To String.
-     *
-     * @return error message as a string.
-     */
-    @Override
-    public String toString() {
-      return "APINotSupportedException{" +
-          "mErrorMessage='" + mErrorMessage + '\'' +
-          '}';
-    }
   }
 
   /**
@@ -353,6 +271,35 @@ public class PDFUtil {
         }
         throw exception;
       }
+    }
+  }
+
+  /**
+   * APINotSupportedException will be thrown If the device doesn't support PDF methods.
+   */
+  private static class APINotSupportedException extends Exception {
+    // mErrorMessage.
+    private String mErrorMessage;
+
+    /**
+     * Constructor.
+     *
+     * @param errorMessage Error Message.
+     */
+    public APINotSupportedException(final String errorMessage) {
+      this.mErrorMessage = errorMessage;
+    }
+
+    /**
+     * To String.
+     *
+     * @return error message as a string.
+     */
+    @Override
+    public String toString() {
+      return "APINotSupportedException{" +
+          "mErrorMessage='" + mErrorMessage + '\'' +
+          '}';
     }
   }
 
