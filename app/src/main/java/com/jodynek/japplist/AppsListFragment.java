@@ -24,9 +24,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.snackbar.Snackbar;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,7 +34,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public class AppsListFragment extends Fragment implements PDFUtil.PDFUtilListener {
+public class AppsListFragment extends Fragment {
   SwipeRefreshLayout pullToRefresh;
   ListView userInstalledApps;
   private List<AppList> installedApps;
@@ -197,25 +194,9 @@ public class AppsListFragment extends Fragment implements PDFUtil.PDFUtilListene
 
   // PDF creation interface
   public void GeneratePDF() {
+    if (getView() == null)
+      return;
     ListView lst = getView().findViewById(R.id.installed_app_list);
-    ArrayList<View> views = new ArrayList<View>();
-    for (int i = 0; i < lst.getCount(); i++) {
-      View v = lst.getChildAt(i);
-      views.add(v);
-    }
-    PDFUtil.getInstance().generatePDF(views, "/storage/emulated/0/test/test.pdf", this);
-  }
-
-  @Override
-  public void pdfGenerationFailure(Exception exception) {
-    Snackbar.make(getView(), "Error generating PDF file!", Snackbar.LENGTH_LONG)
-        .setAction("Action", null).show();
-  }
-
-  @Override
-  public void pdfGenerationSuccess(File savedPDFFile) {
-    Snackbar.make(getView(), "PDF file successfully generated!", Snackbar.LENGTH_LONG)
-        .setAction("Action", null).show();
   }
 
 
