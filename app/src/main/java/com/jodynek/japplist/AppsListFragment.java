@@ -8,10 +8,15 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.storage.StorageManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +29,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -64,7 +76,8 @@ public class AppsListFragment extends Fragment {
         Drawable icon = p.applicationInfo.loadIcon(getContext().getPackageManager());
         String packages = p.applicationInfo.packageName;
         long size = getPackageSizeInfo(packages);
-        apps.add(new AppList(appName, icon, packages, size));
+        String sizeMB = FormatSize(size);
+        apps.add(new AppList(appName, icon, packages, size, sizeMB));
       }
     }
 
@@ -192,11 +205,157 @@ public class AppsListFragment extends Fragment {
     installedAppAdapter.getFilter().filter(filter);
   }
 
+  // TXT export file
+  public void prepareTXT() {
+    String filePath = "/storage/emulated/0/jAppList/AppsList.txt";
+    File txtFile = new File(filePath);
+    //Create parent directories
+    File parentFile = txtFile.getParentFile();
+    if (!parentFile.exists() && !parentFile.mkdirs()) {
+      throw new IllegalStateException("Couldn't create directory: " + parentFile);
+    }
+    boolean fileExists = txtFile.exists();
+    // If File already Exists. delete it.
+    if (fileExists) {
+      fileExists = !txtFile.delete();
+    }
+    try {
+      if (!fileExists) {
+        // Create New File.
+        fileExists = txtFile.createNewFile();
+      }
+      if (fileExists) {
+        generateTXT(txtFile);
+      }
+    } catch (IOException exception) {
+      exception.printStackTrace();
+    }
+  }
+
+  private void generateTXT(File txtFile) {
+    try {
+      Date date = Calendar.getInstance().getTime();
+      SimpleDateFormat simpleDate = new SimpleDateFormat("dd.MM.yyyy");
+      String sText = "Android Applications List - " + simpleDate.format(date) + "\n\n";
+
+      formatAppName();
+      formatSize();
+      FileWriter writer = new FileWriter(txtFile);
+      for (AppList appList : installedApps) {
+        sText += appList.getName() + " " + appList.getSizeMB() + ", " +
+            appList.getPackages() + "\n";
+      }
+      writer.append(sText);
+      writer.flush();
+      writer.close();
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
+    Toast.makeText(getContext(), "Saved - " + txtFile.getAbsolutePath(),
+        Toast.LENGTH_SHORT).show();
+  }
+
+  private void formatSize() {
+    int maxAppLengthSize = 0;
+    for (AppList appList : installedApps) {
+      String sizeMB = appList.sizeMB;
+      if (sizeMB.length() > maxAppLengthSize)
+        maxAppLengthSize = sizeMB.length();
+    }
+
+    for (AppList appList : installedApps) {
+      String sizeMB = appList.sizeMB;
+      int lengthDiff = maxAppLengthSize - sizeMB.length();
+      for (int i = 0; i < lengthDiff; i++) {
+        sizeMB = " " + sizeMB;
+      }
+      appList.setSizeMB(sizeMB);
+    }
+  }
+
+  private void formatAppName() {
+    int maxAppLengthName = 0;
+    for (AppList appList : installedApps) {
+      if (appList.getName().length() > maxAppLengthName)
+        maxAppLengthName = appList.getName().length();
+    }
+
+    for (AppList appList : installedApps) {
+      String appName = appList.getName();
+      int lengthDiff = maxAppLengthName - appName.length();
+      for (int i = 0; i < lengthDiff; i++) {
+        appName += " ";
+      }
+      appList.setName(appName);
+    }
+  }
+
   // PDF creation interface
-  public void GeneratePDF() {
+  public void preparePDF() {
     if (getView() == null)
       return;
     ListView lst = getView().findViewById(R.id.installed_app_list);
+
+    String filePath = "/storage/emulated/0/jAppList/AppsList.pdf";
+    File pdfFile = new File(filePath);
+    //Create parent directories
+    File parentFile = pdfFile.getParentFile();
+    if (!parentFile.exists() && !parentFile.mkdirs()) {
+      throw new IllegalStateException("Couldn't create directory: " + parentFile);
+    }
+    boolean fileExists = pdfFile.exists();
+    // If File already Exists. delete it.
+    if (fileExists) {
+      fileExists = !pdfFile.delete();
+    }
+    try {
+      if (!fileExists) {
+        // Create New File.
+        fileExists = pdfFile.createNewFile();
+      }
+      if (fileExists) {
+        generatePDF(pdfFile);
+      }
+    } catch (IOException exception) {
+      exception.printStackTrace();
+    }
+  }
+
+  private void generatePDF(File file) {
+    // create a new document
+    PdfDocument document = new PdfDocument();
+    // crate a page description
+    PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(300, 600, 1).create();
+    // start a page
+    PdfDocument.Page page = document.startPage(pageInfo);
+    Canvas canvas = page.getCanvas();
+    Paint paint = new Paint();
+    paint.setColor(Color.RED);
+    canvas.drawCircle(50, 50, 30, paint);
+    paint.setColor(Color.BLACK);
+    canvas.drawText("Petr Jodas", 80, 50, paint);
+    //canvas.draw
+    // finish the page
+    document.finishPage(page);
+    // draw text on the graphics object of the page
+    // Create Page 2
+    pageInfo = new PdfDocument.PageInfo.Builder(300, 600, 2).create();
+    page = document.startPage(pageInfo);
+    canvas = page.getCanvas();
+    paint = new Paint();
+    paint.setColor(Color.BLUE);
+    canvas.drawCircle(100, 100, 100, paint);
+    document.finishPage(page);
+
+    try {
+      document.writeTo(new FileOutputStream(file.getAbsolutePath()));
+      Toast.makeText(getContext(), "Done", Toast.LENGTH_LONG).show();
+    } catch (IOException e) {
+      Log.e("main", "error " + e.toString());
+      Toast.makeText(getContext(), "Something wrong: " + e.toString(), Toast.LENGTH_LONG).show();
+    }
+    // close the document
+    document.close();
   }
 
 
@@ -251,9 +410,7 @@ public class AppsListFragment extends Fragment {
       listViewHolder.textInListView.setText(listStorage.get(position).getName());
       listViewHolder.imageInListView.setImageDrawable(listStorage.get(position).getIcon());
       listViewHolder.packageInListView.setText(listStorage.get(position).getPackages());
-      long size = listStorage.get(position).getSize();
-      String sizeMB = FormatSize(size);
-      listViewHolder.sizeInListView.setText(sizeMB);
+      listViewHolder.sizeInListView.setText(listStorage.get(position).getSizeMB());
 
       return convertView;
     }
@@ -271,16 +428,22 @@ public class AppsListFragment extends Fragment {
     private String name;
     private String packages;
     private long size;
+    private String sizeMB;
 
-    public AppList(String name, Drawable icon, String packages, long size) {
+    public AppList(String name, Drawable icon, String packages, long size, String sizeMB) {
       this.name = name;
       this.icon = icon;
       this.packages = packages;
       this.size = size;
+      this.sizeMB = sizeMB;
     }
 
     public String getName() {
       return name;
+    }
+
+    public void setName(String value) {
+      name = value;
     }
 
     public Drawable getIcon() {
@@ -293,6 +456,14 @@ public class AppsListFragment extends Fragment {
 
     public long getSize() {
       return size;
+    }
+
+    public String getSizeMB() {
+      return sizeMB;
+    }
+
+    public void setSizeMB(String value) {
+      sizeMB = value;
     }
   }
 

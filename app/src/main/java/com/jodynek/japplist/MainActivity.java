@@ -61,7 +61,8 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
         AppsListFragment appsListFragment =
             (AppsListFragment) fragment.getChildFragmentManager().getPrimaryNavigationFragment();
         if (appsListFragment != null) {
-          appsListFragment.GeneratePDF();
+          //appsListFragment.preparePDF();
+          appsListFragment.prepareTXT();
         }
       }
     });
