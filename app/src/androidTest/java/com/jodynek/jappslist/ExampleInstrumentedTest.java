@@ -1,4 +1,4 @@
-package com.jodynek.japplist;
+package com.jodynek.jappslist;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.jodynek.japplist", appContext.getPackageName());
+      assertEquals("com.jodynek.jappslist", appContext.getPackageName());
     }
 }

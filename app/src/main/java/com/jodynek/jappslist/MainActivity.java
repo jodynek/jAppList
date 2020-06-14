@@ -1,4 +1,4 @@
-package com.jodynek.japplist;
+package com.jodynek.jappslist;
 
 import android.Manifest;
 import android.app.AppOpsManager;
