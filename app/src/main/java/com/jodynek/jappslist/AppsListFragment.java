@@ -8,15 +8,10 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
-import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.storage.StorageManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -201,6 +195,7 @@ public class AppsListFragment extends Fragment {
         Toast.LENGTH_SHORT).show();
   }
 
+  // AppAdapter filtering - for searching App
   public void SetFilter(String filter) {
     installedAppAdapter.getFilter().filter(filter);
   }
@@ -273,23 +268,6 @@ public class AppsListFragment extends Fragment {
     }
   }
 
-  private void formatAppName() {
-    int maxAppLengthName = 0;
-    for (AppList appList : installedApps) {
-      if (appList.getName().length() > maxAppLengthName)
-        maxAppLengthName = appList.getName().length();
-    }
-
-    for (AppList appList : installedApps) {
-      String appName = appList.getName();
-      int lengthDiff = maxAppLengthName - appName.length();
-      for (int i = 0; i < lengthDiff; i++) {
-        appName += " ";
-      }
-      appList.setName(appName);
-    }
-  }
-
   // PDF creation interface
   public void preparePDF() {
     if (getView() == null)
@@ -322,42 +300,25 @@ public class AppsListFragment extends Fragment {
   }
 
   private void generatePDF(File file) {
-    // create a new document
-    PdfDocument document = new PdfDocument();
-    // crate a page description
-    PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(300, 600, 1).create();
-    // start a page
-    PdfDocument.Page page = document.startPage(pageInfo);
-    Canvas canvas = page.getCanvas();
-    Paint paint = new Paint();
-    paint.setColor(Color.RED);
-    canvas.drawCircle(50, 50, 30, paint);
-    paint.setColor(Color.BLACK);
-    canvas.drawText("Petr Jodas", 80, 50, paint);
-    //canvas.draw
-    // finish the page
-    document.finishPage(page);
-    // draw text on the graphics object of the page
-    // Create Page 2
-    pageInfo = new PdfDocument.PageInfo.Builder(300, 600, 2).create();
-    page = document.startPage(pageInfo);
-    canvas = page.getCanvas();
-    paint = new Paint();
-    paint.setColor(Color.BLUE);
-    canvas.drawCircle(100, 100, 100, paint);
-    document.finishPage(page);
 
-    try {
-      document.writeTo(new FileOutputStream(file.getAbsolutePath()));
-      Toast.makeText(getContext(), "Done", Toast.LENGTH_LONG).show();
-    } catch (IOException e) {
-      Log.e("main", "error " + e.toString());
-      Toast.makeText(getContext(), "Something wrong: " + e.toString(), Toast.LENGTH_LONG).show();
-    }
-    // close the document
-    document.close();
   }
 
+  private void formatAppName() {
+    int maxAppLengthName = 0;
+    for (AppList appList : installedApps) {
+      if (appList.getName().length() > maxAppLengthName)
+        maxAppLengthName = appList.getName().length();
+    }
+
+    for (AppList appList : installedApps) {
+      String appName = appList.getName();
+      int lengthDiff = maxAppLengthName - appName.length();
+      for (int i = 0; i < lengthDiff; i++) {
+        appName += " ";
+      }
+      appList.setName(appName);
+    }
+  }
 
   public class AppAdapter extends BaseAdapter implements Filterable {
     public LayoutInflater layoutInflater;

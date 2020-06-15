@@ -51,8 +51,9 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
     setContentView(R.layout.activity_main);
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-    FloatingActionButton fab = findViewById(R.id.fab);
-    fab.setOnClickListener(new View.OnClickListener() {
+
+    FloatingActionButton fabLeft = findViewById(R.id.fabLeft);
+    fabLeft.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
@@ -61,7 +62,21 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
         AppsListFragment appsListFragment =
             (AppsListFragment) fragment.getChildFragmentManager().getPrimaryNavigationFragment();
         if (appsListFragment != null) {
-          //appsListFragment.preparePDF();
+          appsListFragment.preparePDF();
+        }
+      }
+    });
+
+    FloatingActionButton fabRight = findViewById(R.id.fabRight);
+    fabRight.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        if (fragment == null)
+          return;
+        AppsListFragment appsListFragment =
+            (AppsListFragment) fragment.getChildFragmentManager().getPrimaryNavigationFragment();
+        if (appsListFragment != null) {
           appsListFragment.prepareTXT();
         }
       }
