@@ -40,6 +40,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+/**
+ * Main fragment class
+ */
 public class AppsListFragment extends Fragment {
   SwipeRefreshLayout pullToRefresh;
   ListView userInstalledApps;
@@ -56,6 +59,7 @@ public class AppsListFragment extends Fragment {
     return inflater.inflate(R.layout.fragment_apps_list, container, false);
   }
 
+  // returns collection of installed android applications
   private List<AppList> getInstalledApps() {
     if (getContext() == null)
       return null;
@@ -63,6 +67,7 @@ public class AppsListFragment extends Fragment {
     List<AppList> apps = new ArrayList<>();
     List<PackageInfo> packs = getContext().getPackageManager().getInstalledPackages(0);
 
+    // iterate through installed packages
     for (int i = 0; i < packs.size(); i++) {
       PackageInfo p = packs.get(i);
       if ((!isSystemPackage(p))) {
@@ -71,6 +76,7 @@ public class AppsListFragment extends Fragment {
         String packages = p.applicationInfo.packageName;
         long size = getPackageSizeInfo(packages);
         String sizeMB = FormatSize(size);
+
         apps.add(new AppList(appName, icon, packages, size, sizeMB));
       }
     }
@@ -85,10 +91,13 @@ public class AppsListFragment extends Fragment {
     return apps;
   }
 
+  // check if package is a system package
+  // if true - don't add it into app list
   private boolean isSystemPackage(PackageInfo pkgInfo) {
     return (pkgInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
   }
 
+  // return app size
   private long getPackageSizeInfo(String packageName) {
     if (getContext() == null)
       return 0;
@@ -112,6 +121,7 @@ public class AppsListFragment extends Fragment {
     return 0;
   }
 
+  // format app size into "human" readable format
   private String FormatSize(long size) {
     String sizeString;
     if (size < 1000)
@@ -126,12 +136,14 @@ public class AppsListFragment extends Fragment {
     return sizeString;
   }
 
+  // when view created, refresh data
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
     Refresh();
 
     super.onViewCreated(view, savedInstanceState);
   }
 
+  // refresh apps list
   public void Refresh() {
     if (getView() == null)
       return;
@@ -151,10 +163,11 @@ public class AppsListFragment extends Fragment {
       return;
     installedAppAdapter = new AppAdapter(this.getContext(), installedApps);
     userInstalledApps.setAdapter(installedAppAdapter);
+
+    // when user tapped on item in apps list...
     userInstalledApps.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
-
         String[] colors = {" Open App", " App Info"};
         AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
         builder.setTitle("Choose Action")
@@ -200,12 +213,14 @@ public class AppsListFragment extends Fragment {
     installedAppAdapter.getFilter().filter(filter);
   }
 
-  // TXT export file
+  // prepare TXT export file
   public void prepareTXT() {
     String filePath = "/storage/emulated/0/jAppList/AppsList.txt";
     File txtFile = new File(filePath);
     //Create parent directories
     File parentFile = txtFile.getParentFile();
+    if (parentFile == null)
+      return;
     if (!parentFile.exists() && !parentFile.mkdirs()) {
       throw new IllegalStateException("Couldn't create directory: " + parentFile);
     }
@@ -227,6 +242,7 @@ public class AppsListFragment extends Fragment {
     }
   }
 
+  // generate TXT file
   private void generateTXT(File txtFile) {
     try {
       Date date = Calendar.getInstance().getTime();
@@ -278,6 +294,8 @@ public class AppsListFragment extends Fragment {
     File pdfFile = new File(filePath);
     //Create parent directories
     File parentFile = pdfFile.getParentFile();
+    if (parentFile == null)
+      return;
     if (!parentFile.exists() && !parentFile.mkdirs()) {
       throw new IllegalStateException("Couldn't create directory: " + parentFile);
     }
@@ -299,6 +317,7 @@ public class AppsListFragment extends Fragment {
     }
   }
 
+  // generate PDF file
   private void generatePDF(File file) {
 
   }
@@ -320,6 +339,9 @@ public class AppsListFragment extends Fragment {
     }
   }
 
+  /**
+   * data adapter for ListView
+   */
   public class AppAdapter extends BaseAdapter implements Filterable {
     public LayoutInflater layoutInflater;
     public List<AppList> listStorage;
@@ -376,6 +398,9 @@ public class AppsListFragment extends Fragment {
       return convertView;
     }
 
+    /**
+     * class for one ListView item
+     */
     class ViewHolder {
       TextView textInListView;
       ImageView imageInListView;
@@ -428,6 +453,9 @@ public class AppsListFragment extends Fragment {
     }
   }
 
+  /**
+   * support class for filtering ListView
+   */
   private class AppFilter extends Filter {
     @Override
     protected FilterResults performFiltering(CharSequence constraint) {

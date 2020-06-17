@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    // check permissions
     // permission for stats
     AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
     if (appOps == null)
@@ -40,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
       startActivityForResult(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS), 0);
     }
     // permission for writing into external storage
-    /* Request user permissions in runtime */
     ActivityCompat.requestPermissions(MainActivity.this,
         new String[]{
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -48,10 +48,13 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
         },
         100);
 
+    // content and toolbar
     setContentView(R.layout.activity_main);
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
+    // left and right FloatingActionButtons
+    // left button is export into PDF
     FloatingActionButton fabLeft = findViewById(R.id.fabLeft);
     fabLeft.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
       }
     });
 
+    // right button is export into TXT file
     FloatingActionButton fabRight = findViewById(R.id.fabRight);
     fabRight.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -83,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
     });
   }
 
+  // on request permission result
   @Override
   public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
     switch (requestCode) {
@@ -99,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
     }
   }
 
+  // on creating options menu
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
@@ -119,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
     return true;
   }
 
+  // when item in options menu selected
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     // Handle action bar item clicks here. The action bar will
@@ -140,11 +147,13 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
     return super.onOptionsItemSelected(item);
   }
 
+  // QueryTextListener
   @Override
   public boolean onQueryTextSubmit(String query) {
     return false;
   }
 
+  // on search field text changed
   @Override
   public boolean onQueryTextChange(String newText) {
     Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
