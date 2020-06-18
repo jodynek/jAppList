@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.storage.StorageManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.tom_roush.pdfbox.pdmodel.PDDocument;
+import com.tom_roush.pdfbox.pdmodel.PDPage;
+import com.tom_roush.pdfbox.pdmodel.PDPageContentStream;
+import com.tom_roush.pdfbox.pdmodel.common.PDRectangle;
+import com.tom_roush.pdfbox.pdmodel.font.PDFont;
+import com.tom_roush.pdfbox.pdmodel.font.PDType1Font;
+import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -39,7 +48,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 /**
  * Main fragment class
  */
@@ -319,7 +327,46 @@ public class AppsListFragment extends Fragment {
 
   // generate PDF file
   private void generatePDF(File file) {
+    // A4 - 595x841px
+    // Enable Android-style asset loading (highly recommended)
+    PDFBoxResourceLoader.init(getContext());
+    PDDocument document = new PDDocument();
+    PDPage page = new PDPage(PDRectangle.A4);
+    document.addPage(page);
 
+    // Create a new font object selecting one of the PDF base fonts
+    PDFont font = PDType1Font.HELVETICA;
+    PDPageContentStream contentStream;
+
+    try {
+      // Define a content stream for adding to the PDF
+      contentStream = new PDPageContentStream(document, page);
+
+      // Write Hello World in blue text
+      contentStream.beginText();
+      contentStream.setNonStrokingColor(15, 38, 192);
+      contentStream.setFont(font, 40);
+      contentStream.newLineAtOffset(100, 700);
+      contentStream.showText("Hello World");
+      contentStream.endText();
+
+      // Draw a green rectangle
+      contentStream.addRect(5, 500, 100, 100);
+      contentStream.setNonStrokingColor(0, 255, 125);
+      contentStream.fill();
+
+      // Make sure that the content stream is closed:
+      contentStream.close();
+
+      // Save the final pdf document to a file
+      String path = file.getAbsolutePath();
+      document.save(path);
+      document.close();
+      Toast.makeText(getContext(), "Saved - " + file.getAbsolutePath(),
+          Toast.LENGTH_SHORT).show();
+    } catch (IOException e) {
+      Log.e("PdfBox-Android-Sample", "Exception thrown while creating PDF", e);
+    }
   }
 
   private void formatAppName() {
