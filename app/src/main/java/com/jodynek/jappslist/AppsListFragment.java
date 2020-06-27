@@ -30,7 +30,7 @@ import com.tom_roush.pdfbox.pdmodel.PDPage;
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream;
 import com.tom_roush.pdfbox.pdmodel.common.PDRectangle;
 import com.tom_roush.pdfbox.pdmodel.font.PDFont;
-import com.tom_roush.pdfbox.pdmodel.font.PDType1Font;
+import com.tom_roush.pdfbox.pdmodel.font.PDType0Font;
 import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
 import java.io.File;
@@ -333,27 +333,42 @@ public class AppsListFragment extends Fragment {
     PDDocument document = new PDDocument();
     PDPage page = new PDPage(PDRectangle.A4);
     document.addPage(page);
-
-    // Create a new font object selecting one of the PDF base fonts
-    PDFont font = PDType1Font.HELVETICA;
-    PDPageContentStream contentStream;
-
     try {
+      // Create a new font object selecting one of the PDF base fonts
+      //PDFont font = PDType1Font.HELVETICA;
+      PDFont font = PDType0Font.load(document, getActivity().getAssets().open("com/tom_roush/pdfbox/resources/ttf/LiberationSans-Regular.ttf"));
+      //PDFont font = PDType0Font.load(document,
+      //PDFont font = PDType0Font.load(document,
+      //    getActivity().getAssets().open("fonts/Legendum_legacy.otf"));
+
       // Define a content stream for adding to the PDF
-      contentStream = new PDPageContentStream(document, page);
+      PDPageContentStream contentStream = new PDPageContentStream(document, page);
+      int fontSize = 10;
+      //float width = font.getStringWidth(text.substring(start,i)) / 1000 * fontSize;
+      float height = font.getHeight('M') / 1000 * fontSize;
 
-      // Write Hello World in blue text
       contentStream.beginText();
-      contentStream.setNonStrokingColor(15, 38, 192);
-      contentStream.setFont(font, 40);
-      contentStream.newLineAtOffset(100, 700);
-      contentStream.showText("Hello World");
-      contentStream.endText();
+      contentStream.setNonStrokingColor(0, 0, 0);
+      contentStream.setFont(font, fontSize);
+      contentStream.newLineAtOffset(100, 100);
 
-      // Draw a green rectangle
-      contentStream.addRect(5, 500, 100, 100);
-      contentStream.setNonStrokingColor(0, 255, 125);
-      contentStream.fill();
+      formatAppName();
+      formatSize();
+      Date date = Calendar.getInstance().getTime();
+      SimpleDateFormat simpleDate = new SimpleDateFormat("dd.MM.yyyy");
+      String sText = "Android Applications List - " + simpleDate.format(date);
+      float textPos = 100 + height;
+      contentStream.showText(sText);
+      //contentStream.endText();
+      contentStream.newLineAtOffset(100, textPos);
+      for (AppList appList : installedApps) {
+        sText = appList.getName() + " " + appList.getSizeMB() + ", " +
+            appList.getPackages();
+        contentStream.showText(sText);
+        contentStream.newLineAtOffset(100, textPos);
+        textPos += height;
+      }
+      contentStream.endText();
 
       // Make sure that the content stream is closed:
       contentStream.close();
