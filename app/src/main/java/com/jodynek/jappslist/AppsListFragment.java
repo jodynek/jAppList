@@ -335,11 +335,8 @@ public class AppsListFragment extends Fragment {
     document.addPage(page);
     try {
       // Create a new font object selecting one of the PDF base fonts
-      //PDFont font = PDType1Font.HELVETICA;
-      PDFont font = PDType0Font.load(document, getActivity().getAssets().open("com/tom_roush/pdfbox/resources/ttf/LiberationSans-Regular.ttf"));
-      //PDFont font = PDType0Font.load(document,
-      //PDFont font = PDType0Font.load(document,
-      //    getActivity().getAssets().open("fonts/Legendum_legacy.otf"));
+      PDFont font = PDType0Font.load(document,
+          getActivity().getAssets().open("com/tom_roush/pdfbox/resources/ttf/LiberationSans-Regular.ttf"));
 
       // Define a content stream for adding to the PDF
       PDPageContentStream contentStream = new PDPageContentStream(document, page);

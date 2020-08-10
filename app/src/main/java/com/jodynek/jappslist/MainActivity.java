@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
 
     // left and right FloatingActionButtons
     // left button is export into PDF
+    /*
     FloatingActionButton fabLeft = findViewById(R.id.fabLeft);
     fabLeft.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
         }
       }
     });
+    */
 
     // right button is export into TXT file
     FloatingActionButton fabRight = findViewById(R.id.fabRight);
