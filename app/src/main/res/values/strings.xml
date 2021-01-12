@@ -4,4 +4,6 @@
     <string name="refresh">Refresh</string>
     <string name="total_installed_apps">"Total Installed Apps: %1$s"</string>
     <string name="apps">" Apps"</string>
+    <string name="title_home">"Installed apps"</string>
+    <string name="title_dashboard">"Running apps"</string>
 </resources>

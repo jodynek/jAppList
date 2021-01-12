@@ -13,14 +13,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.SearchView.OnQueryTextListener;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity implements OnQueryTextListener {
   private SearchView searchView;
@@ -52,25 +52,6 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
     setContentView(R.layout.activity_main);
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-
-    // left and right FloatingActionButtons
-    // left button is export into PDF
-    /*
-    FloatingActionButton fabLeft = findViewById(R.id.fabLeft);
-    fabLeft.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        if (fragment == null)
-          return;
-        AppsListFragment appsListFragment =
-            (AppsListFragment) fragment.getChildFragmentManager().getPrimaryNavigationFragment();
-        if (appsListFragment != null) {
-          appsListFragment.preparePDF();
-        }
-      }
-    });
-    */
 
     // right button is export into TXT file
     FloatingActionButton fabRight = findViewById(R.id.fabRight);
@@ -146,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements OnQueryTextListen
       }
       return true;
     }
+
     return super.onOptionsItemSelected(item);
   }
 
